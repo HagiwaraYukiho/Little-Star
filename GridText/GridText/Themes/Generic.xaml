@@ -10,14 +10,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:GridMakes}">
-                    <Border Background="{TemplateBinding Background}">
-                        <Grid>
-                            <UniformGrid
-                                x:Name="AutoGrid"
-                                Columns="{TemplateBinding Columns}"
-                                Rows="{TemplateBinding Rows}" />
-                        </Grid>
-                    </Border>
+                    <Border Background="{TemplateBinding Background}" />
 
                 </ControlTemplate>
             </Setter.Value>

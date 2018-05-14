@@ -46,11 +46,11 @@
                                 <Setter Property="Foreground" Value="Blue" />
                             </DataTrigger>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Content}" Value="次へ">
-                                <Setter Property="Background" Value="#F2F2F2" />
+                                <Setter Property="Background" Value="#FFE0DEDE" />
                                 <Setter Property="Foreground" Value="Blue" />
                             </DataTrigger>
                             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=Content}" Value="前へ">
-                                <Setter Property="Background" Value="#F2F2F2" />
+                                <Setter Property="Background" Value="#FFE0DEDE" />
                                 <Setter Property="Foreground" Value="Blue" />
                             </DataTrigger>
                             <Trigger Property="IsChecked" Value="True">

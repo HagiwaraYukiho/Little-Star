@@ -17,13 +17,16 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Border>
-            <CheckBox Checked="CheckBox_Checked" Content="123" />
+            <TextBlock Text="{Binding Path=SelectedBox, ElementName=GridMakes}" />
         </Border>
 
         <local:GridMakes
+            x:Name="GridMakes"
             Grid.Column="1"
-            Columns="2"
-            Rows="2" />
+            Columns="4"
+            MaxSelectCount="4"
+            Rows="3"
+            SelectedBox="{Binding}" />
 
 
     </Grid>
