@@ -23,9 +23,10 @@
         <local:GridMakes
             x:Name="GridMakes"
             Grid.Column="1"
+            AddPageSource="Page1.xaml"
             Columns="4"
-            MaxSelectCount="4"
-            Rows="3"
+            MaxSelectCount="5"
+            Rows="4"
             SelectedBox="{Binding}" />
 
 
