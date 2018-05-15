@@ -12,6 +12,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System;
+using System.Collections.ObjectModel;
+using GridText.DataInterface;
+using Reactive.Bindings;
 
 namespace GridText
 {
@@ -20,14 +24,43 @@ namespace GridText
     /// </summary>
     public partial class MainWindow : Window
     {
+
+        public ReadOnlyObservableCollection<AutoGridConstruct> DummyDataManage;
+
+        public ReadOnlyObservableCollection<AutoGridConstruct> _DummyDataManage
+        {
+            get => DummyDataManage;
+            set => DummyDataManage = value;
+        }
         public MainWindow()
         {
+           
             InitializeComponent();
+            DummyDataMake();
+
         }
 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        private void DummyDataMake()
         {
+            ObservableCollection<AutoGridConstruct> dummyData = new ObservableCollection<AutoGridConstruct>();
+            
+            for (int i = 0; i < 40; i++)
+            {
+                dummyData.Add(DataFormat("T"+i, i.ToString(), 0));
+            }
 
+            DummyDataManage = dummyData.ToReadOnlyReactiveCollection();
+        }
+
+        private AutoGridConstruct DataFormat(string dataId, string dataName, int dataStatus)
+        {
+            AutoGridConstruct data = new AutoGridConstruct()
+            {
+                DataID = dataId,
+                DataName = dataName,
+                DataStatus = dataStatus,
+            };
+            return data;
         }
     }
 }

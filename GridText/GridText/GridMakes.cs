@@ -12,7 +12,7 @@ namespace GridText
 {
     public class GridMakes : UniformGrid
     {
-        private ReadOnlyObservableCollection<AutoGridConstruct> _autoGridDataGroup;
+        
         public static readonly DependencyProperty MultiSelectProperty = DependencyProperty.Register(
             "MultiSelect", typeof(bool), typeof(GridMakes), new PropertyMetadata(false));
 
@@ -51,6 +51,8 @@ namespace GridText
 
         public GridMakes()
         {
+
+            DummyDataMake();
             Loaded += CheckBoxInit;
         }
 
@@ -60,14 +62,8 @@ namespace GridText
         private const int MinPage = 1;
         private static double _maxPage = 0;
         private static readonly Dictionary<string, string> CheckedItm = new Dictionary<string, string>();
-
-        private static readonly string[] ButtonStrings =
-        {
-            "T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12", "T13", "T14", "T15", "T16",
-            "T17", "T18", "T19", "T20", "T21", "T22", "T23", "T24", "T25", ",gh", ",gh", ",gh", ",ghdfg", ",gh", ",gh",
-            ",gh", ",ghghj", ",gh", ",ghjh", ",gh", ",gjhh", ",gh", ",gh", ",gh", ",ghjhj", ",gh", ",gh", ",gh", ",8gh",
-            ",gh", ",gh9", ",gh", ",gh", ",g0h", ",g-h", ",gh", ",gh", ",g2h", ",gh"
-        };
+        private ObservableCollection<AutoGridConstruct> dummyData = new ObservableCollection<AutoGridConstruct>();
+        private ReadOnlyObservableCollection<AutoGridConstruct> _autoGridDataGroup;
 
         private void Page_Control()
         {
@@ -97,7 +93,7 @@ namespace GridText
 
         private void Data_Make()
         {
-            _autoGridDataGroup = (ReadOnlyObservableCollection< AutoGridConstruct>)DataContext;
+            
             CheckedItm.Clear();
             for (var i = 0; i < _gridCount; i++)
             {
@@ -129,6 +125,7 @@ namespace GridText
 
         private void CheckBoxInit(object sender, RoutedEventArgs e)
         {
+            //_autoGridDataGroup = (ReadOnlyReactiveCollection<AutoGridConstruct>)DataContext;
             if (Rows == 0 || Columns == 0)
             {
                 Rows = 2;
@@ -232,6 +229,30 @@ namespace GridText
             {
                 SelectedBox += value;
             }
+        }
+
+        /**  DummyDataMake  */
+        private void DummyDataMake()
+        {
+
+
+            for (int i = 0; i < 40; i++)
+            {
+                dummyData.Add(DataFormat("T" + i, i.ToString(), 0));
+            }
+
+            _autoGridDataGroup = dummyData.ToReadOnlyReactiveCollection();
+        }
+
+        private AutoGridConstruct DataFormat(string dataId, string dataName, int dataStatus)
+        {
+            AutoGridConstruct data = new AutoGridConstruct()
+            {
+                DataID = dataId,
+                DataName = dataName,
+                DataStatus = dataStatus,
+            };
+            return data;
         }
     }
 }

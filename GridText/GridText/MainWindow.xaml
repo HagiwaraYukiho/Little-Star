@@ -25,6 +25,7 @@
             Grid.Column="1"
             AddPageSource="Page1.xaml"
             Columns="4"
+            DataContext="{Binding Path=_DummyDataManage}"
             MaxSelectCount="5"
             Rows="4"
             SelectedBox="{Binding}" />
