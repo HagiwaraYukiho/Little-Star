@@ -25,13 +25,8 @@ namespace GridText
     public partial class MainWindow : Window
     {
 
-        public ReadOnlyObservableCollection<AutoGridConstruct> DummyDataManage;
-
-        public ReadOnlyObservableCollection<AutoGridConstruct> _DummyDataManage
-        {
-            get => DummyDataManage;
-            set => DummyDataManage = value;
-        }
+        public ReadOnlyObservableCollection<AutoGridConstruct> DummyDataManage { get; set; }
+        readonly ObservableCollection<AutoGridConstruct> dummyData = new ObservableCollection<AutoGridConstruct>();
         public MainWindow()
         {
            
@@ -42,21 +37,23 @@ namespace GridText
 
         private void DummyDataMake()
         {
-            ObservableCollection<AutoGridConstruct> dummyData = new ObservableCollection<AutoGridConstruct>();
+
             
             for (int i = 0; i < 40; i++)
             {
                 dummyData.Add(DataFormat("T"+i, i.ToString(), 0));
             }
 
-            DummyDataManage = dummyData.ToReadOnlyReactiveCollection();
+           DummyDataManage = dummyData.ToReadOnlyReactiveCollection();
+            GridMakes.AutoGridData = DummyDataManage;
+            //this.GridMakes.DataContext= DummyDataManage;
         }
 
         private AutoGridConstruct DataFormat(string dataId, string dataName, int dataStatus)
         {
             AutoGridConstruct data = new AutoGridConstruct()
             {
-                DataID = dataId,
+                DataId = dataId,
                 DataName = dataName,
                 DataStatus = dataStatus,
             };

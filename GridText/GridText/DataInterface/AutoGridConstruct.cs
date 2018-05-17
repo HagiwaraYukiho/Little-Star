@@ -9,7 +9,7 @@ namespace GridText.DataInterface
         private string _dataName;//データ名
        private int _dataStatus;//データ状態（０：オン、１：オフ）
 
-        public string DataID
+        public string DataId
        {
            get => _dataId;
            set => SetProperty(ref _dataId, value);

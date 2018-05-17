@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -6,72 +7,71 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Navigation;
 using GridText.DataInterface;
-using Reactive.Bindings;
 
 namespace GridText
 {
     public class GridMakes : UniformGrid
     {
-        
-        public static readonly DependencyProperty MultiSelectProperty = DependencyProperty.Register(
-            "MultiSelect", typeof(bool), typeof(GridMakes), new PropertyMetadata(false));
-
-        public bool MultiSelect
-        {
-            get => (bool)GetValue(MultiSelectProperty);
-            set => SetValue(MultiSelectProperty, value);
-        }
+        private const int MinPage = 1;
+        private const string Empty = "";
 
         public static readonly DependencyProperty MaxSelectCountProperty = DependencyProperty.Register(
             "MaxSelectCount", typeof(int), typeof(GridMakes), new PropertyMetadata(2));
 
-        public int MaxSelectCount
-        {
-            get => (int)GetValue(MaxSelectCountProperty);
-            set => SetValue(MaxSelectCountProperty, value);
-        }
-
         public static readonly DependencyProperty SelectedBoxpProperty = DependencyProperty.Register(
-            "SelectedBox", typeof(string), typeof(GridMakes), new PropertyMetadata(string.Empty));
-
-        public string SelectedBox
-        {
-            get => (string)GetValue(SelectedBoxpProperty);
-            set => SetValue(SelectedBoxpProperty, value);
-        }
+            "SelectedText", typeof(string), typeof(GridMakes), new PropertyMetadata(string.Empty));
 
         public static readonly DependencyProperty AddPageSourceProperty = DependencyProperty.Register(
             "AddPageSource", typeof(string), typeof(GridMakes), new PropertyMetadata(string.Empty));
 
-        public string AddPageSource
-        {
-            get => (string)GetValue(AddPageSourceProperty);
-            set => SetValue(AddPageSourceProperty, value);
-        }
-
+        //public static readonly DependencyProperty GridDataProperty = DependencyProperty.Register(
+        //    "GridData", typeof(ReadOnlyObservableCollection<object>), typeof(GridMakes), new PropertyMetadata(string.Empty));
+        private static int _gridCount;
+        private static int _dataCount;
+        private static int _nowPage = 1;
+        private static double _maxPage;
+        private static readonly Dictionary<string, string> CheckedItem = new Dictionary<string, string>();
+        private static readonly Dictionary<string, int> MapDictionary = new Dictionary<string, int>();
+        private ReadOnlyObservableCollection<AutoGridConstruct> _autoGridDataGroup;
         public GridMakes()
         {
-
-            DummyDataMake();
             Loaded += CheckBoxInit;
         }
 
-        private static int _gridCount = 0;
-        private static int _dataCount = 0;
-        private static int _nowPage = 1;
-        private const int MinPage = 1;
-        private static double _maxPage = 0;
-        private static readonly Dictionary<string, string> CheckedItm = new Dictionary<string, string>();
-        private ObservableCollection<AutoGridConstruct> dummyData = new ObservableCollection<AutoGridConstruct>();
-        private ReadOnlyObservableCollection<AutoGridConstruct> _autoGridDataGroup;
+        public ReadOnlyObservableCollection<AutoGridConstruct> AutoGridData { get; set; }
+        public List<AutoGridConstruct> SelectedItem=new List<AutoGridConstruct>();
+
+        public int MaxSelectCount
+        {
+            get => (int) GetValue(MaxSelectCountProperty);
+            set => SetValue(MaxSelectCountProperty, value);
+        }
+
+        public string SelectedText
+        {
+            get => (string) GetValue(SelectedBoxpProperty);
+            set => SetValue(SelectedBoxpProperty, value);
+        }
+
+        public string AddPageSource
+        {
+            get => (string) GetValue(AddPageSourceProperty);
+            set => SetValue(AddPageSourceProperty, value);
+        }
+
+//        public string GridData
+//        {
+//            get => (string)GetValue(GridDataProperty);
+//            set => SetValue(AddPageSourceProperty, value);
+//        }
 
         private void Page_Control()
         {
-            var buttonNext = new CheckBox { Content = "次へ" };
+            var buttonNext = new CheckBox {Content = "次へ"};
             buttonNext.Checked += Button_Next;
-            var buttonPervious = new CheckBox { Content = "前へ" };
+            var buttonPervious = new CheckBox {Content = "前へ"};
             buttonPervious.Checked += Button_Pervious;
-            var buttonCreate = new CheckBox { Content = "追加する" };
+            var buttonCreate = new CheckBox {Content = "追加する"};
             buttonCreate.Checked += Button_Add;
 
             if (_nowPage == MinPage)
@@ -93,39 +93,39 @@ namespace GridText
 
         private void Data_Make()
         {
-            
-            CheckedItm.Clear();
+            CheckedItem.Clear();
+            SelectedItem.Clear();
             for (var i = 0; i < _gridCount; i++)
-            {
-                try
+                if (_autoGridDataGroup.Count > _dataCount + i)
                 {
-                    if (_autoGridDataGroup[_dataCount + i].DataStatus==0)
+                    if (_autoGridDataGroup[_dataCount + i].DataStatus == 0)
                     {
                         var dataCheckBox = new CheckBox
                         {
                             Content = _autoGridDataGroup[_dataCount + i].DataName,
-                            Name = _autoGridDataGroup[_dataCount + i].DataID,
+                            Name = _autoGridDataGroup[_dataCount + i].DataId
                         };
-
+                        if (MapDictionary.ContainsKey(Name + i))
+                            MapDictionary.Remove(Name + i);
+                        MapDictionary.Add(dataCheckBox.Name, _dataCount + i);
                         dataCheckBox.Checked += Checked_Event;
                         dataCheckBox.Unchecked += Unchecked_Event;
                         //if (CheckedItm.ContainsKey(DataCheckBox.Name))
                         //    DataCheckBox.IsChecked = true;
                         Children.Add(dataCheckBox);
                     }
-                    
                 }
-                catch (Exception)
+                else
                 {
-                    var emptyCheckBox = new CheckBox { Content = "ブランク" };
+                    var emptyCheckBox = new CheckBox {Content = "追加"};
+                    emptyCheckBox.Checked += Button_Add;
                     Children.Add(emptyCheckBox);
                 }
-            }
         }
 
         private void CheckBoxInit(object sender, RoutedEventArgs e)
         {
-            //_autoGridDataGroup = (ReadOnlyReactiveCollection<AutoGridConstruct>)DataContext;
+            _autoGridDataGroup = AutoGridData;
             if (Rows == 0 || Columns == 0)
             {
                 Rows = 2;
@@ -134,10 +134,11 @@ namespace GridText
 
             _gridCount = Rows * Columns - 2;
 
-            _maxPage = (double)_autoGridDataGroup.Count / _gridCount;
-            _maxPage = Math.Ceiling((_maxPage));
+            _maxPage = (double) _autoGridDataGroup.Count / _gridCount;
+            _maxPage = Math.Ceiling(_maxPage);
             Data_Make();
             Page_Control();
+            SelectedText = Empty;
         }
 
         private void Button_Next(object sender, RoutedEventArgs e)
@@ -161,98 +162,61 @@ namespace GridText
 
         private void Button_Add(object sender, RoutedEventArgs e)
         {
-            var addButton = (CheckBox)sender;
-            addButton.IsChecked = false;
-            var newWindow = new NavigationWindow { Source = new Uri(AddPageSource, UriKind.Relative) };
+            var addButton = (CheckBox) sender;
+            var newWindow = new NavigationWindow {Source = new Uri(AddPageSource, UriKind.Relative)};
             newWindow.Show();
+            addButton.IsChecked = false;
         }
 
         private void Checked_Event(object sender, RoutedEventArgs e)
         {
-            var checkedBox = (CheckBox)sender;
+            var checkedBox = (CheckBox) sender;
 
-            foreach (CheckBox ckd in this.Children)
-            {
+            foreach (CheckBox ckd in Children)
                 if (ckd.IsChecked == true)
                 {
-                    if (CheckedItm.ContainsKey(ckd.Name))
-                        CheckedItm.Remove(ckd.Name);
-                    CheckedItm.Add(ckd.Name, ckd.Content.ToString());
+                    if (CheckedItem.ContainsKey(ckd.Name))
+                        CheckedItem.Remove(ckd.Name);
+                    CheckedItem.Add(ckd.Name, ckd.Content.ToString());
                 }
-            }
 
-            if (CheckedItm.Count > MaxSelectCount)
+            if (CheckedItem.Count > MaxSelectCount)
             {
                 if (MaxSelectCount == 1)
                 {
-                    CheckedItm.Clear();
-                    foreach (CheckBox ckdc in this.Children)
-                    {
+                    CheckedItem.Clear();
+                    foreach (CheckBox ckdc in Children)
                         if (ckdc.IsChecked == true)
                             ckdc.IsChecked = false;
-                    }
 
                     checkedBox.IsChecked = true;
                 }
                 else
                 {
                     MessageBox.Show("LimitCount Over!");
-                    foreach (CheckBox ckdc in this.Children)
-                    {
-                        ckdc.IsChecked = false;
-                    }
+                    foreach (CheckBox ckdc in Children) ckdc.IsChecked = false;
 
-                    CheckedItm.Clear();
+                    CheckedItem.Clear();
                 }
             }
 
-            SelectedBox = "";
-            foreach (var dicStr in CheckedItm.Values)
-            {
-                SelectedBox += dicStr;
-            }
+            SelectedText = Empty;
+            SelectedItem.Clear();
+            foreach (var value in CheckedItem.Values)SelectedText += value;
+            
+            foreach (var key in CheckedItem.Keys)SelectedItem.Add(_autoGridDataGroup[MapDictionary[key]]);
         }
 
         private void Unchecked_Event(object sender, RoutedEventArgs e)
         {
-            SelectedBox = "";
-
-            foreach (CheckBox ckd in this.Children)
-            {
+            SelectedText = Empty;
+            SelectedItem.Clear();
+            foreach (CheckBox ckd in Children)
                 if (ckd.IsChecked == false)
-                {
-                    CheckedItm.Remove(ckd.Name);
-                }
-            }
+                    CheckedItem.Remove(ckd.Name);
 
-            foreach (var value in CheckedItm.Values)
-            {
-                SelectedBox += value;
-            }
-        }
-
-        /**  DummyDataMake  */
-        private void DummyDataMake()
-        {
-
-
-            for (int i = 0; i < 40; i++)
-            {
-                dummyData.Add(DataFormat("T" + i, i.ToString(), 0));
-            }
-
-            _autoGridDataGroup = dummyData.ToReadOnlyReactiveCollection();
-        }
-
-        private AutoGridConstruct DataFormat(string dataId, string dataName, int dataStatus)
-        {
-            AutoGridConstruct data = new AutoGridConstruct()
-            {
-                DataID = dataId,
-                DataName = dataName,
-                DataStatus = dataStatus,
-            };
-            return data;
+            foreach (var value in CheckedItem.Values) SelectedText += value;
+            foreach (var key in CheckedItem.Keys) SelectedItem.Add(_autoGridDataGroup[MapDictionary[key]]);
         }
     }
 }

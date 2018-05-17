@@ -10,6 +10,13 @@
     Width="900"
     Height="400"
     mc:Ignorable="d">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Themes/GridAppre.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -17,7 +24,7 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <Border>
-            <TextBlock Text="{Binding Path=SelectedBox, ElementName=GridMakes}" />
+            <TextBlock Text="{Binding Path=SelectedText, ElementName=GridMakes}" />
         </Border>
 
         <local:GridMakes
@@ -25,10 +32,9 @@
             Grid.Column="1"
             AddPageSource="Page1.xaml"
             Columns="4"
-            DataContext="{Binding Path=_DummyDataManage}"
-            MaxSelectCount="5"
+            MaxSelectCount="4"
             Rows="4"
-            SelectedBox="{Binding}" />
+            SelectedText="{Binding}" />
 
 
     </Grid>
